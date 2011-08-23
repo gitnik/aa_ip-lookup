@@ -2,7 +2,7 @@
 ob_start();
 
 // --- needs to be modified ---
-$sources = "/path/to/ladderlog.txt";
+$sources = array("/path/to/ladderlog.txt");
 $target = "/path/to/trimmed/log.txt";
 
 // --- don't change the rest --- 
