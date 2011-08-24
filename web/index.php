@@ -45,14 +45,15 @@ if(!$result)
 $_SESSION["logged_in"] = true;
 
 $ip = (isset($_POST['ip']))?$_POST['ip']: null; 
+$player = (isset($_POST['player']))?$_POST['player']: null; 
 
-if(!$ip)
+if(!$ip && !$player)
 {
       ip_form();
       html_footer();
 }
 
-if(!validate_ip($ip))
+if(!$player && !validate_ip($ip))
 {
       print_error_message("Invalid IP.");
       ip_form();
@@ -62,7 +63,12 @@ if(!validate_ip($ip))
 $display_names = array();
 $gids = array();
 
-$result = search($ip);
+if($player == null) 
+      $result = search($ip,null); 
+elseif($ip == null) 
+      $result = search(null,$player); 
+elseif($player != null && $ip != null) 
+      $result = search($ip,$player);   
 
 if(!$result)
 {

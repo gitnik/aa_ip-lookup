@@ -37,6 +37,8 @@ function ip_form()
             <form action='index.php' method='post'>
             IP:<br />
             <input type='text' name='ip' /><br />
+            Player:<br />
+            <input type='text' name='player' /><br />
             <input type='submit' onclick='alert('This might take some time.\nPlease be patient!') /> 
             </form></div>";
 }
@@ -49,36 +51,130 @@ function validate_ip($ip)
             return false;
 }
 
-function search($ip)  
+function search($ip=null,$player=null)  
 {
       global $config;
+      global $display_names;
+      global $gids;
+      $last_ips = array();
       
-      foreach(file($config["ip_log"]) as $line)
+      if(!$ip && !$player)
+            return false;
+            
+      if(!$player && isset($ip))
       {
-            if(strpos($line,$ip) !== false) 
+            // search for IP only
+            foreach(file($config["ip_log"]) as $line)
             {
-                  $line = explode(" ",$line); //$line=$line[0];
-                  
-                  global $display_names;
-                  global $gids;
-                  
-                  if(count($line) == 3)
+                  if(strpos($line,$ip) !== false) 
                   {
-                        // PLAYER_ENTERED
-                        if(!in_array($line[2],$display_names))
-                              array_push($display_names,$line[2]);
-                  }
-                  elseif(count($line) == 5)
-                  {
-                        // PLAYER_RENAMED
-                        if(strpos($line[1],"@") !== false && !in_array($line[1],$gids))
-                              array_push($gids,$line[1]);
-                        if(!in_array($line[4],$display_names))     
-                              array_push($display_names,$line[4]);    
-                  }
-                  $match = true;
+                        $line = explode(" ",$line); 
+                        
+                        if(count($line) == 3)
+                        {
+                              // PLAYER_ENTERED
+                              if(!in_array($line[2],$display_names))
+                                    array_push($display_names,$line[2]);
+                        }
+                        elseif(count($line) == 5)
+                        {
+                              // PLAYER_RENAMED
+                              if(strpos($line[1],"@") !== false && !in_array($line[1],$gids))
+                                    array_push($gids,$line[1]);
+                              if(!in_array($line[4],$display_names))     
+                                    array_push($display_names,$line[4]);    
+                        }
+                        $match = true;
+                  }      
             }      
       }
+      
+      if(!$ip && isset($player))
+      {
+            // search for player name only
+            foreach(file($config["ip_log"]) as $line)
+            {
+                  if(strpos($line,$player) !== false) 
+                  {
+                        $line = explode(" ",$line); 
+                        
+                        if(count($line) == 3)
+                        {
+                              // PLAYER_ENTERED
+                              if(!in_array($line[2],$display_names))
+                                    array_push($display_names,$line[2]);
+                                    
+                              array_push($last_ips,$line[1]);  // remember the last known IP for later use
+                               
+                        }
+                        elseif(count($line) == 5)
+                        {
+                              // PLAYER_RENAMED
+                              if(strpos($line[1],"@") !== false && !in_array($line[1],$gids))
+                                    array_push($gids,$line[1]);
+                              if(!in_array($line[4],$display_names))     
+                                    array_push($display_names,$line[4]);
+                                    
+                              array_push($last_ips,$line[2]); // remember the last known IP for later use 
+                        }
+                        $match = true;
+                  }      
+            } 
+            //print_r($last_ips);
+            // search for entries matching the player's IP
+            foreach(file($config["ip_log"]) as $line)
+            {
+                  if(array_walk($last_ips,function ($ip){return (strpos($line,$ip) !== false)?true:false;})) 
+                  {
+                        $line = explode(" ",$line); 
+                        
+                        if(count($line) == 3)
+                        {
+                              // PLAYER_ENTERED
+                              if(!in_array($line[2],$display_names))
+                                    array_push($display_names,$line[2]);
+                        }
+                        elseif(count($line) == 5)
+                        {
+                              // PLAYER_RENAMED
+                              if(strpos($line[1],"@") !== false && !in_array($line[1],$gids))
+                                    array_push($gids,$line[1]);
+                              if(!in_array($line[4],$display_names))     
+                                    array_push($display_names,$line[4]);   
+                        }
+                        $match = true;
+                  }      
+            } 
+                            
+      }
+      
+      if(isset($player) && isset($ip))
+      {
+            // search for entries matching both, the IP and the player's name
+            foreach(file($config["ip_log"]) as $line)
+            {
+                  if(strpos($line,$ip) !== false && strpos($line,$player) !== false) 
+                  {
+                        $line = explode(" ",$line); 
+                        
+                        if(count($line) == 3)
+                        {
+                              // PLAYER_ENTERED
+                              if(!in_array($line[2],$display_names))
+                                    array_push($display_names,$line[2]);
+                        }
+                        elseif(count($line) == 5)
+                        {
+                              // PLAYER_RENAMED
+                              if(strpos($line[1],"@") !== false && !in_array($line[1],$gids))
+                                    array_push($gids,$line[1]);
+                              if(!in_array($line[4],$display_names))     
+                                    array_push($display_names,$line[4]);   
+                        }
+                        $match = true;
+                  }      
+            }      
+      }      
       
       if($match != true)
             return false;
