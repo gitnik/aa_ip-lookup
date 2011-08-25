@@ -120,11 +120,14 @@ function search($ip=null,$player=null)
                         $match = true;
                   }      
             } 
-            //print_r($last_ips);
+            
+            if(empty($last_ips)) 
+                  return false;
+
             // search for entries matching the player's IP
             foreach(file($config["ip_log"]) as $line)
             {
-                  if(array_walk($last_ips,function ($ip){return (strpos($line,$ip) !== false)?true:false;})) 
+                  if(array_walk($last_ips,create_function('$ip' , 'return (strpos($line,$ip) !== false)?true:false;'))) 
                   {
                         $line = explode(" ",$line); 
                         
