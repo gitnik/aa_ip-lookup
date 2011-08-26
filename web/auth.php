@@ -1,10 +1,12 @@
 <?php
-
-require_once("config.php");
+require("config.php");
+require_once("phpbb.php");
+require("config.php"); //include config again, because phpbb overwrote $config
 
 function authenticate($username=null,$password=null)
 {
       global $config;
+      global $user;
       
       switch($config["auth_method"])
       {
@@ -57,6 +59,19 @@ function authenticate($username=null,$password=null)
                               return false;      
                   }
                   else die("you have set a non valid password hash method (db)");
+                  break;
+            case "phpbb":
+                  if(empty($config["phpbb"]["users"]) && empty($config["phpbb"]["groups"]))
+                        die("do you really want to give access to nobody? (phpbb)");
+                  else
+                  {
+                        if(in_array($user->data["username"],$config["phpbb"]["users"]))
+                              return true;
+                        if(in_array($user->data["group_id"],$config["phpbb"]["groups"]) || in_array($user->data["user_type"],$config["phpbb"]["groups"]))
+                              return true;
+
+                        return false;
+                  }
                   break;
             case "none":
                   return true;

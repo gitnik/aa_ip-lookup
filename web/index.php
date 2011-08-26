@@ -13,6 +13,15 @@ html_header();
 if(isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] == true)
 {
       $result = true;
+}
+elseif($config["auth_method"] == "phpbb") {
+      // --- PHPBB Workaround ---
+      $result = authenticate();
+      if(!$result)
+      {
+            print_error_message("Access denied!");
+            html_footer();
+      }
 } elseif($config["auth_method"] == "none") {
       $result = true;
 } elseif((!$username || !$password)) {
@@ -78,12 +87,6 @@ if(!$result)
 } 
 
 format_output($display_names,$gids);
-html_footer(); 
-     
-
-   
-
-
-
+html_footer();
 
 ?>
