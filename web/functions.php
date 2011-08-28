@@ -63,9 +63,10 @@ function search($ip=null,$player=null)
       elseif(isset($player) && isset($ip))
             $condition = "(strpos($line,$ip) !== false && strpos($line,$player) !== false)";
 
+      eval("\$ok =  \"$condition)\";");
+
       foreach(file($config["ip_log"]) as $line)
       {
-            eval("\$ok =  \"$condition)\";");
             if($ok)
             {
                   $line = explode(" ",$line);
