@@ -55,19 +55,25 @@ function search($ip=null,$player=null)
 {
       global $config, $display_names,$gids;
       $ips = array();
-      
-      if(!$player && isset($ip))
-            $condition = "(strpos($line,$ip) !== false)";
-      elseif(isset($player) && !$ip)
-            $condition = "(strpos($line,$player) !== false)";
-      elseif(isset($player) && isset($ip))
-            $condition = "(strpos($line,$ip) !== false && strpos($line,$player) !== false)";
 
       foreach(file($config["ip_log"]) as $line)
       {
-            eval("\$ok =  \"$condition)\";");
- 
-            if($ok)
+            if($player==null && isset($ip)) {
+                  $one = strpos($line,$ip);
+                  $two = true;
+            }
+            elseif(isset($player) && $ip==null) {
+                  $one = strpos($line,$player);
+                  $two = true;
+            }
+            elseif(isset($player) && isset($ip)) {
+                  $one = strpos($line,$ip);
+                  $two = strpos($line,$player); 
+            }
+                  
+
+
+            if($one !== false && $two !== false)
             {
                   $line = explode(" ",$line);
 
@@ -87,7 +93,7 @@ function search($ip=null,$player=null)
                               array_push($gids,$line[1]);
                         if(!in_array($line[4],$display_names))
                               array_push($display_names,$line[4]);
-                              
+
                         if(!in_array($line[2],$ips))
                               array_push($ips,$line[2]);
                   }
@@ -99,10 +105,10 @@ function search($ip=null,$player=null)
                               // PLAYER_RENAMED
                               if(strpos($line[1],"@") !== false && !in_array($line[1],$gids))
                                     array_push($gids,$line[1]);
-                                    
+
                               if(!in_array($line[2],$ips))
                                     array_push($ips,$line[2]);
-                                    
+
                               $name = "";
                               foreach((array_slice($line,4)) as $part)
                               {
@@ -117,7 +123,7 @@ function search($ip=null,$player=null)
                               // PLAYER_ENTERED
                               if(!in_array($line[1],$ips))
                                     array_push($ips,$line[1]);
-                                    
+
                               $name = "";
                               foreach((array_slice($line,2)) as $part)
                               {
@@ -131,8 +137,8 @@ function search($ip=null,$player=null)
                   $match = true;
             }
       }
-      
-      if(isset($player) && !$ip)
+
+      if(isset($player) && $ip==null)
       {
             foreach($ips as $ip)
                   search($ip,null);
@@ -149,7 +155,7 @@ function format_output($names,$gids)
 {
       if(count($gids) == 0)
             array_push($gids,"-");
-            
+
      echo "<div style='margin-left: 45%;'>"
          ."<ul><li>Display names:
             <ul>";
@@ -160,11 +166,11 @@ function format_output($names,$gids)
             <ul>";
       foreach($gids as $gid)
             echo "<li>$gid</li>";
-      echo "</ul></li></ul>" 
+      echo "</ul></li></ul>"
           ."</div>";
-          
-      echo "<br /><br/><div align='center'>"   
+
+      echo "<br /><br/><div align='center'>"
           ."<a href='index.php'>Start new search<a/>"
-          ."</div>";     
+          ."</div>";
 }
 ?>
