@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
     // argv[1] = filename
     if (argc != 4) {
         cout << "Missing or too many parameters" << endl;
-        cout << "Usage: ./iplookup <pathtoladderlog> <outputfile> <ip/name>" << endl;
+        cout << "Usage: ./cli <pathtoladderlog> <outputfile> <ip/name>" << endl;
         return 0;
     }
 
