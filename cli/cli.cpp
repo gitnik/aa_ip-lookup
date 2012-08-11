@@ -1,10 +1,3 @@
-/* 
- * File:   main.cpp
- * Author: Nik
- *
- * Created on 11. August 2012, 11:52
- */
-
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
